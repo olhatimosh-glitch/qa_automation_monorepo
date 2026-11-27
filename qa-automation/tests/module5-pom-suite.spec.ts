@@ -1,13 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pageObjects/LoginPage.js';
-import { generateTestUser } from '../helpers/testData.js';
+import { DEFAULT_USER } from '../data/test-user';
+import { generateTestUser } from '../helpers/testData';
+import { LoginPage } from '../pageObjects/LoginPage';
 
 test.use({
   baseURL: process.env.BASE_URL || 'http://localhost:5173',
 });
 
 test.describe('Вхід у Tasteorama (Page Object)', () => {
-  let loginPage;
+  let loginPage: LoginPage;
 
   test.beforeEach(async ({ page }) => {
     loginPage = new LoginPage(page);
@@ -17,14 +18,16 @@ test.describe('Вхід у Tasteorama (Page Object)', () => {
   test('успішний вхід переводить на головну сторінку', async ({ page }) => {
     await Promise.all([
       page.waitForResponse((res) => res.url().includes('/auth/login')),
-      loginPage.login(process.env.TEST_EMAIL, process.env.TEST_PASSWORD),
+      loginPage.login(DEFAULT_USER.email, DEFAULT_USER.password),
     ]);
 
     await expect(page).toHaveURL('/');
   });
 
-  test('неправильний пароль показує помилку і не переводить на головну', async ({ page }) => {
-    await loginPage.login(process.env.TEST_EMAIL, 'wrong-password');
+  test('неправильний пароль показує помилку і не переводить на головну', async ({
+    page,
+  }) => {
+    await loginPage.login(DEFAULT_USER.email, 'wrong-password');
 
     await expect(loginPage.errorMessage).toBeVisible();
     await expect(page).toHaveURL('/auth/login');
@@ -59,7 +62,10 @@ test.describe('Перевірка хелпера generateTestUser', () => {
   });
 
   test('будує імʼя та пошту з переданих prefix і domain', () => {
-    const testUser = generateTestUser({ prefix: 'qa', domain: 'example.com' });
+    const testUser = generateTestUser({
+      prefix: 'qa',
+      domain: 'example.com',
+    });
 
     expect(testUser.username).toMatch(/^qa_\d+$/);
     expect(testUser.email).toBe(`${testUser.username}@example.com`);
@@ -67,12 +73,17 @@ test.describe('Перевірка хелпера generateTestUser', () => {
 });
 
 test.describe('Вхід неіснуючого користувача', () => {
-  test('згенерований хелпером користувач бачить помилку входу', async ({ page }) => {
+  test('згенерований хелпером користувач бачить помилку входу', async ({
+    page,
+  }) => {
     const nonExistentUser = generateTestUser();
     const loginPage = new LoginPage(page);
 
     await loginPage.open();
-    await loginPage.login(nonExistentUser.email, nonExistentUser.password);
+    await loginPage.login(
+      nonExistentUser.email,
+      nonExistentUser.password
+    );
 
     await expect(loginPage.errorMessage).toBeVisible();
     await expect(page).toHaveURL('/auth/login');
