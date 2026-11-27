@@ -1,0 +1,17 @@
+export enum RecipeCategory {
+  Seafood = 'Seafood',
+  Lamb = 'Lamb',
+  Starter = 'Starter',
+  Chicken = 'Chicken',
+  Beef = 'Beef',
+  Dessert = 'Dessert',
+  Vegan = 'Vegan',
+  Pork = 'Pork',
+  Vegetarian = 'Vegetarian',
+  Miscellaneous = 'Miscellaneous',
+  Pasta = 'Pasta',
+  Breakfast = 'Breakfast',
+  Side = 'Side',
+  Goat = 'Goat',
+  Soup = 'Soup',
+}
